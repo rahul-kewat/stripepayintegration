@@ -3,7 +3,7 @@
     "description": "This package will help the developers to include it in their laravel based application to minimize their workload on the payment intgration services",
     "type": "laravel",
     "require": {
-        "stripe/stripe-php": "^2.0@dev",
+        "stripe/stripe-php": "^2.0@dev"
     },
     "license": "MIT",
     "authors": [
@@ -12,5 +12,17 @@
             "email": "rk.rahulkewat@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Devrahul\\Stripepayintegration\\StripepayintegrationServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Devrahul\\Stripepayintegration\\" :"src/"
+        }
+    }
 }
