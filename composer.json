@@ -3,8 +3,7 @@
     "description": "This package will help the developers to include it in their laravel based application to minimize their workload on the payment intgration services",
     "type": "laravel",
     "require": {
-        "stripe/stripe-php": "^2.0@dev",
-        "laravel/cashier": "v9.3.5"
+        "stripe/stripe-php": "^2.0@dev"
     },
     "license": "MIT",
     "authors": [
