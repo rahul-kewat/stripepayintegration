@@ -27,7 +27,6 @@ class StripeRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'phone_country_code' => 'required|digits_between:1,5',
             'phone_number' => 'required|digits_between:5,10',
-            'customer' => 'required',
             'currency' => 'required',
             'amount' => 'required',
             'card_id' => 'required'

@@ -33,30 +33,22 @@ class StripePaymentController extends Controller
             DB::beginTransaction();
             // $user = Auth::user();
             // Getting Stripe Customer ID of the Customer
-                // $stripeCustomerId = $user->stripe_custmer_id;
-
+            // $stripeCustomerId = $user->stripe_custmer_id;
+            $stripeCustomerId = "sdjkfhsdjkfhs";  // just an example
             Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-            $stripeCustomerId ="cus_GmWdXjf7bdm9oF";
-            $cardDetails = \Stripe\Customer::allSources(
-                $stripeCustomerId
-            );
-
-            
+            // Payment started for the requested customer
+            $stripeCustomerId =$request['customer_id'];
             Stripe\Charge::create ([
                     "amount" => $request['amount'] * 100,
                     "currency" => "usd",
-                    // "source" => $request->stripeToken,
-                    "customer" => $request['customer_name'],
+                    "source" =>   $request->stripeToken,
                     "customer" => $stripeCustomerId,
                     "description" => "Test payment" 
             ]);
-    
-            
 
-            
+
             DB::commit();
-
             $this->response['message'] = "Payment Successfully Accepted";
             $this->response['data'] = $result;
             return response($this->response, 200);
