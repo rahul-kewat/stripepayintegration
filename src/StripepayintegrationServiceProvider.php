@@ -14,10 +14,10 @@ Class StripepayintegrationServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/routes/api.php');
         
         $this->publishes([
-            __DIR__.'/Http/Controllers/API/v1/' => app_path('Http/Controllers/API/v1/'),
+            __DIR__.'/Http/' => app_path('Http/'),
         ]);
         $this->publishes([
-            __DIR__.'/routes/' => app_path('routes/'),
+            __DIR__.'/routes/' => app_path('Http/routes/'),
         ]);
        
 
