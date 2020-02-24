@@ -28,26 +28,76 @@ class StripePaymentController extends Controller
         try{
             // Getting all the request
             $inputData = $request->all();
+            Stripe::setApiKey(env("STRIPE_SECRET"));
+            /** Start Transaction here while create users **/
+            DB::beginTransaction();   
+
+
+
+            $user = Auth::user();
+            $inputData = $request->all();
+            $inputData['user_id'] = $user->id; // updated user id passed in the parameter with the logged in user ID
+            $stripeCustomerId = $user->stripe_custmer_id; // getting stripe customer id of the logged in user
+
+            if(!$stripeCustomerId){ 
+                // if customer does not have stripe id then create his stripe customer id
+                $customerDetails = \Stripe\Customer::create([
+                    'description' => 'New Customer added '.$user->firstname,
+                    'email' => $user->email,
+                    'source' => $inputData['card_source_id']
+                ]);
+                $user->stripe_custmer_id = $customerDetails->id;
+                $user->save();
+                $stripeCustomerId = $customerDetails->id;
+            }
+            if($inputData['card_save'] == 1){
+                // if user card data is to be saved then this block of code will execute
+                    $cardDetails = \Stripe\Customer::allSources(
+                        $stripeCustomerId
+                    );
+                    //getting token detail with cardsouc
+                    $tokenDetails = \Stripe\Token::retrieve(
+                        $inputData['card_source_id']
+                    );
+
+                    $isAlreadyAdded = false;
+                    foreach($cardDetails as $card){
+                        if($card['fingerprint'] == $tokenDetails['card']['fingerprint']){
+                            $isAlreadyAdded = true;
+                        }
+                    }
+                if($isAlreadyAdded == false){
+                    $source = \Stripe\Customer::createSource(
+                        $stripeCustomerId,
+                        ['source' => $inputData['card_source_id']]
+                    );
             
+                    $charge = \Stripe\Charge::create([
+                        'amount' => $inputData['price'] * 100, 
+                        'currency' => $inputData['currency'], 
+                        'source' => $source->id,
+                        'customer' => $stripeCustomerId 
+                    ]);
+                }
+                else{
+                    $charge = \Stripe\Charge::create([
+                        'amount' => $inputData['price'] * 100, 
+                        'currency' => $inputData['currency'], 
+                        'source' => $inputData['card_source_id']
+                    ]);
+                }  
 
-            DB::beginTransaction();
-            // $user = Auth::user();
-            // Getting Stripe Customer ID of the Customer
-            // $stripeCustomerId = $user->stripe_custmer_id;
-            $stripeCustomerId = "sdjkfhsdjkfhs";  // just an example
-            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // Payment started for the requested customer
-            $stripeCustomerId =$request['customer_id'];
-            Stripe\Charge::create ([
-                    "amount" => $request['amount'] * 100,
-                    "currency" => "usd",
-                    "source" =>   $request->stripeToken,
-                    "customer" => $stripeCustomerId,
-                    "description" => "Test payment" 
-            ]);
-
-
+            }
+            else
+            {
+                // if card is saved then directly charge the user
+                $charge = \Stripe\Charge::create([
+                    'amount' => $inputData['price'] * 100, 
+                    'currency' => $inputData['currency'], 
+                    'customer' => $stripeCustomerId 
+                ]);
+            }
+            
             DB::commit();
             $this->response['message'] = "Payment Successfully Accepted";
             $this->response['data'] = $result;

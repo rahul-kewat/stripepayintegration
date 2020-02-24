@@ -13,7 +13,7 @@ class StripeRequest extends FormRequest
      */
     public function authorize()
     {
-       return true;
+        return true;
     }
 
     /**
@@ -24,11 +24,9 @@ class StripeRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => 'required|exists:users,id',
-            'phone_country_code' => 'required|digits_between:1,5',
-            'phone_number' => 'required|digits_between:5,10',
+            'card_source_id' => 'required',
+            'price' =>  'required',
             'currency' => 'required',
-            'amount' => 'required',
             'card_id' => 'required'
         ];
     }
